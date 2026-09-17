@@ -279,4 +279,260 @@ void login({
   required String password,
 }) {} 
 
+
+
+void function
+
+A void function doesn't return a value to the caller.
+
+void sayHello() {
+  print("Hello Udhaya");
+}
+Function with return value
+
+A function can return a value, and we specify the return type.
+
+int add(int a, int b) {
+  return a + b;
+}
+
+var result = add(10, 20);
+print(result); // 30
+
+Here:
+
+int → return type
+return a + b → sends the value back
+void → no value returned
+
+🧠 Remember:
+
+void → does something
+int/String/bool/... → gives something back
+
+One small nuance: a void function can use return; to exit early, but it cannot return a value.
+
+
+
+
+
+
+
+Use void when you only want the function to do something
+
+You don't need a result back.
+
+void sayHello() {
+  print("Hello Udhaya");
+}
+
+sayHello();
+
+The function performs an action → no result needed.
+
+Examples:
+
+Print something
+Show a message
+Update UI/state
+Send a notification
+Change some data
+Use return when you need the function to give a result back
+int add(int a, int b) {
+  return a + b;
+}
+
+int result = add(10, 20);
+
+print(result); // 30
+
+Here you need the calculated value somewhere else → return it.
+
+Examples:
+
+Calculate total
+Check something and return true/false
+Get a user's name
+Convert data
+Calculate a price
+Easy way to decide 🧠
+
+Ask yourself:
+
+“Do I need the result outside this function?”
+
+No → void
+
+void printName() {
+  print("Udhaya");
+}
+
+Yes → return a value
+
+String getName() {
+  return "Udhaya";
+}
+
+And remember: return isn't the opposite of void.
+return is the statement used to send a value back (or exit early), while void is a return type meaning the function doesn't provide a value.
+
+Now let's continue from where we were:
+
+
+
+
+
+
+Ask one simple question:
+
+“After this function finishes, do I need the answer/value somewhere else?”
+
+Example 1 — Don't need the result → void
+void sayHello() {
+  print("Hello Udhaya");
+}
+
+You call it:
+
+sayHello();
+
+It simply does an action. You're not expecting any value from it.
+
+Example 2 — Need the result → return
+
+Suppose you want to calculate something:
+
+int add(int a, int b) {
+  return a + b;
+}
+
+Now:
+
+int total = add(10, 20);
+
+Why return?
+
+Because you want to take 30 out of the function and store/use it.
+
+add()
+  ↓
+  30
+  ↓
+total
+
+You can then do:
+
+print(total);
+
+or:
+
+if (total > 20) {
+  print("Greater");
+}
+
+That's why it needs to return.
+
+Real Flutter example
+
+Imagine:
+
+void showLoading() {
+  // show loading indicator
+}
+
+You don't need an answer → void.
+
+But:
+
+bool isLoggedIn() {
+  return true;
+}
+
+You need the answer outside:
+
+if (isLoggedIn()) {
+  // go to home
+}
+
+Here the function gives you true/false.
+
+🧠 The easiest rule for you
+
+Don't ask:
+
+“Should I use return?”
+
+Ask:
+
+“Will the caller need something from this function?”
+
+No → void
+
+Yes → return that value
+
+And honestly, this is something you'll understand much better through small coding tasks than theory. We can do that after finishing the function basics, just like we planned. ❤️
+
+
+
+
+Positional parameters
+
+Arguments are passed based on their position/order.
+
+void greet(String name, int age) {
+  print("$name is $age");
+}
+
+greet("Udhaya", 23);
+
+Here:
+
+"name" → 1st position
+"23"   → 2nd position
+
+So the order matters.
+
+Named parameters
+
+Arguments are passed using the parameter name, so the order doesn't matter.
+
+void greet({required String name, required int age}) {
+  print("$name is $age");
+}
+
+greet(age: 23, name: "Udhaya");
+
+Notice:
+
+age: 23
+name: "Udhaya"
+
+We changed the order, and it still works. ✅
+
+Important correction
+
+Named parameters are not automatically required.
+
+void greet({String? name}) {
+  print(name);
+}
+
+greet(); // ✅ allowed
+
+If you use required:
+
+void greet({required String name}) {
+  print(name);
+}
+
+greet(); // ❌ error
+
+🧠 Remember:
+
+Positional → position/order matters
+Named → name matters, order doesn't
+required → must provide it
+
+
+
  */

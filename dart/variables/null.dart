@@ -25,5 +25,24 @@ String?      → can be null
 ?.           → null-aware access
 !            → null assertion
 if (x != null) → check before using
+
+
+? → nullable — value can be null
+
+String? name;
+
+! → null assertion operator — you're telling Dart:
+
+“I am sure this value is NOT null.”
+
+String? name = "Udhaya";
+print(name!);
+
+⚠️ If you're wrong and name is actually null, it can cause a runtime error.
+
+🧠 Simple memory:
+
+? → Maybe null
+! → Definitely not null (I promise 😅)
   */
 }
