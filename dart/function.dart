@@ -533,6 +533,143 @@ Positional → position/order matters
 Named → name matters, order doesn't
 required → must provide it
 
+Optional positional []
 
+Order/position still matters.
+
+void greet(String name, [int? age]) {
+  print(name);
+  print(age);
+}
+
+greet("Udhaya");       // age omitted
+greet("Udhaya", 23);   // age provided
+Optional named {}
+
+You pass them by name.
+
+void greet(String name, {int? age}) {
+  print(name);
+  print(age);
+}
+
+greet("Udhaya");            // age omitted
+greet("Udhaya", age: 23);   // age provided
+
+🧠 Easy memory:
+
+[] → optional + position
+{} → optional + name
+
+And if you write:
+
+{required int age}
+
+then it's a named parameter that is mandatory.
+
+
+A default parameter value means:
+
+If the caller doesn't provide a value, the function automatically uses the default value.
+
+Example:
+
+void greet(String name, {String city = "Coimbatore"}) {
+  print("$name from $city");
+}
+
+If you don't provide city:
+
+greet("Udhaya");
+// Udhaya from Coimbatore
+
+If you provide it:
+
+greet("Udhaya", city: "Bangalore");
+// Udhaya from Bangalore
+
+So:
+
+Value provided → use provided value
+Value not provided → use default value
+
+One important point
+
+Default values are normally used with optional parameters:
+
+[int age = 23]       // optional positional
+{int age = 23}       // optional named
+
+Don't worry about memorizing the syntax yet. Just remember the concept.
+
+An anonymous function is a function without a name, usually used for a small piece of logic.
+
+It is also commonly called a lambda function. In Dart, anonymous functions can also form closures when they capture variables from their surrounding scope.
+
+Example:
+
+var numbers = [1, 2, 3];
+
+numbers.forEach((number) {
+  print(number);
+});
+
+Here:
+
+(number) {
+  print(number);
+}
+
+is an anonymous function because it has no function name.
+
+Short interview answer
+
+An anonymous function is a function without a name, generally used for a small piece of logic, especially as a callback.
+
+🧠 Remember:
+
+Anonymous → no name
+Lambda → anonymous function
+Callback → function passed to another function
+
+Anonymous function
+
+A function without a name.
+
+var greet = () {
+  print("Hello");
+};
+Lambda
+
+In Dart, people commonly use lambda to refer to an anonymous function, especially a short one:
+
+var greet = () => print("Hello");
+
+So:
+
+Anonymous function ≈ lambda ✅
+
+Closure
+
+A closure is a function that can remember/access variables from its surrounding scope, even after that surrounding function has finished.
+
+Function counter() {
+  int count = 0;
+
+  return () {
+    count++;
+    print(count);
+  };
+}
+
+Here the anonymous function captures count. That's what makes it a closure.
+
+🧠 For your interview:
+
+Anonymous function → function without a name
+Lambda → commonly used term for an anonymous function
+Closure → function that captures variables from its surrounding scope
+
+So your note was close, but don't say “closure = anonymous function”. A closure is about capturing/remembering surrounding variables.
 
  */
