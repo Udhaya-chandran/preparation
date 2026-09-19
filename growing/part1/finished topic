@@ -1,0 +1,70 @@
+Variables & data types
+String
+int
+bool
+Conditions
+if
+else if
+else
+==, >=, <
+Loops
+for
+for-in
+i++
+i--
+forward/reverse loops
+Operators
+% modulus
++
+comparisons
+Lists
+Accessing elements
+length
+Indexes
+Looping through lists
+contains()
+Basic list problems
+Largest number
+Smallest number
+Count even/odd numbers
+Search for a value
+Reverse a list
+Boolean logic
+bool found
+true / false
+Functions
+Creating functions
+Parameters
+void
+Return values
+Functions returning bool
+Functions accepting List<int>
+Strings
+String indexing
+length
+toLowerCase()
+contains()
+Reversing a string
+Counting vowels
+Basic problem-solving practice
+We completed 21 small tasks.
+Not yet covered in Part 1
+
+These are still coming in the existing plan:
+
+Map
+Set
+More List methods/concepts
+Classes & Objects
+Full OOP
+Palindrome
+Reverse number/digit
+Fibonacci
+Factorial
+Prime number
+Star patterns
+Other basic coding/DSA problems
+
+Those haven't been forgotten — they'll come at their planned points.
+
+So tomorrow:
