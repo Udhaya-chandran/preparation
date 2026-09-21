@@ -1,0 +1,24 @@
+What is Flutter?
+Interview answer
+
+Flutter is an open-source UI framework by Google used to build cross-platform applications from a single codebase.
+
+It uses Dart as its programming language and provides its own widget-based UI system.
+
+You can use Flutter to build:
+
+Android apps
+iOS apps
+Web apps
+Desktop applications
+Simple way to remember
+
+Flutter = framework
+Dart = programming language
+Widget = basic building block of Flutter UI
+
+Interview follow-up
+
+Q: Why can Flutter build Android and iOS apps from one codebase?
+
+Because Flutter provides a cross-platform framework and rendering system, allowing the same Dart/Flutter codebase to be used across different platforms, with platform-specific functionality accessed when needed.

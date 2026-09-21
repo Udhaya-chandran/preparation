@@ -1,0 +1,51 @@
+A Widget is the basic building block of a Flutter UI.
+
+Things you see in a Flutter app are represented using widgets:
+
+Text
+Button
+Image
+Container
+Row
+Column
+Scaffold
+AppBar
+
+Even things that don't directly appear visually, such as layout or behavior-related structures, are represented through widgets.
+
+
+For example:
+
+Column(
+  children: [
+    Text('Hello'),
+    ElevatedButton(
+      onPressed: () {},
+      child: Text('Click'),
+    ),
+  ],
+)
+
+Here:
+
+Column → Widget
+Text → Widget
+ElevatedButton → Widget
+Text inside the button → Widget
+Important interview concept
+
+Flutter UI is basically a tree of widgets.
+
+For example:
+
+MaterialApp
+   ↓
+Scaffold
+   ↓
+Column
+   ├── Text
+   └── ElevatedButton
+          ↓
+        Text
+
+This is called the Widget Tree.

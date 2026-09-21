@@ -1,0 +1,28 @@
+setState() doesn't itself change the state. You change the variable/state inside setState(), and then setState() tells Flutter:
+
+“The state has changed, rebuild this part of the UI.”
+
+Example:
+
+setState(() {
+  count++;
+});
+
+Here:
+
+count++ → changes the state
+setState() → tells Flutter to rebuild the widget
+Interview answer
+
+“setState() is used in a StatefulWidget to notify Flutter that the state has changed, so Flutter rebuilds the widget with the updated state.”
+
+Mental flow
+State changes
+     ↓
+setState()
+     ↓
+Flutter schedules rebuild
+     ↓
+build() runs again
+     ↓
+Updated UI

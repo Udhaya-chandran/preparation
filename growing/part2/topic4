@@ -1,0 +1,43 @@
+Widget Tree
+
+You already saw this briefly.
+
+Suppose we have:
+
+Scaffold(
+  body: Column(
+    children: [
+      Text('Hello'),
+      ElevatedButton(
+        onPressed: () {},
+        child: Text('Click'),
+      ),
+    ],
+  ),
+)
+
+The structure is roughly:
+
+Scaffold
+   ↓
+ Column
+   ├── Text
+   └── ElevatedButton
+          ↓
+        Text
+
+This hierarchy is called the Widget Tree.
+
+Each widget describes one part of the UI or its structure. 
+
+“The Widget Tree describes the structure and hierarchy of the UI. It shows how widgets are nested inside other widgets.”
+
+For example:
+
+Scaffold
+   ↓
+ Column
+   ├── Text
+   └── Button
+
+That's enough. You don't need a complicated definition.

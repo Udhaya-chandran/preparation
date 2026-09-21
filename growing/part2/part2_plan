@@ -1,0 +1,19 @@
+Part 2 — Flutter Fundamentals
+
+We'll keep the same approach as Part 1:
+
+Theory → you explain in your own words → small practical task → review → next topic
+
+Part 2 roadmap
+What is Flutter?
+What is a Widget?
+StatelessWidget vs StatefulWidget
+Widget Tree
+Element Tree
+RenderObject / Render Tree
+BuildContext
+setState()
+Widget lifecycle
+Keys
+Rebuilds & performance
+Practical Flutter tasks

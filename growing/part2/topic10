@@ -1,0 +1,19 @@
+A Key is used to uniquely identify a Widget among its siblings, so Flutter can correctly preserve/match the corresponding Element and State when the widget tree changes.
+
+Example
+Column(
+  children: [
+    Text("A", key: ValueKey(1)),
+    Text("B", key: ValueKey(2)),
+  ],
+)
+
+If the order changes, the keys help Flutter understand:
+
+“This is the same widget/state as before, just in a different position.”
+
+Interview answer
+
+“Keys uniquely identify widgets among their siblings and help Flutter preserve and correctly match their state when the widget tree changes.”
+
+Your phrase “uniquely identify a widget” is good. Just remember among siblings and state preservation.

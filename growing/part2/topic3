@@ -1,0 +1,36 @@
+StatelessWidget:
+
+A StatelessWidget is immutable and doesn't maintain mutable state internally. It is mainly used when the UI depends only on the input values and doesn't need to change its internal state.
+
+StatefulWidget:
+
+A StatefulWidget is used when the UI needs to change over time. The mutable data is stored in its separate State object, and setState() is used to notify Flutter that the UI needs to rebuild.
+
+And yes, you correctly remembered lifecycle methods like:
+
+initState()
+build()
+dispose()
+
+We'll cover the lifecycle properly later.
+
+⭐ Important mental model
+
+Think of it like:
+
+StatefulWidget
+      ↓
+   State object
+      ↓
+mutable data
+      ↓
+  setState()
+      ↓
+  build() again
+      ↓
+ updated UI
+
+One important interview point:
+
+setState() doesn't directly change the UI.
+You change the state/data, then setState() tells Flutter that the state changed and the widget needs to rebuild.

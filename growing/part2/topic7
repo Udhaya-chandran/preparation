@@ -1,0 +1,23 @@
+“BuildContext defines the location of a widget in the widget tree.”
+
+✅ Correct.
+
+Just add one important point: BuildContext also gives a widget access to things available around its location in the tree, such as:
+
+Theme.of(context)
+MediaQuery.of(context)
+Navigator.of(context)
+ScaffoldMessenger.of(context)
+Interview answer
+
+“BuildContext represents the location of a widget in the widget tree. It allows the widget to access information and services available at that location in the tree.”
+
+Easy mental model
+Widget
+   ↓
+BuildContext
+   ↓
+"I am located HERE in the Widget Tree,
+and I can access things available around me."
+
+Your first sentence is enough for a basic interview answer. The second sentence makes it stronger. 👌

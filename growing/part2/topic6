@@ -1,0 +1,26 @@
+RenderObject is responsible for the actual rendering work, such as:
+
+Layout → deciding size and position
+Painting → drawing pixels/content on the screen 
+Hit testing → determining what was touched/clicked
+
+So the three trees can be remembered like this:
+
+Widget Tree → describes the UI structure
+Element Tree → maintains the UI objects and manages/reuses them during rebuilds
+RenderObject Tree → performs the actual layout, painting, and hit testing
+
+Simple example
+Text("Hello")
+    ↓
+Widget
+    ↓
+Element
+    ↓
+RenderObject
+    ↓
+Layout → where/how big?
+Paint  → draw "Hello"
+Interview answer in your own words
+
+“RenderObject is responsible for the actual rendering work, mainly layout, painting, and hit testing.”

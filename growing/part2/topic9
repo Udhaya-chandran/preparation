@@ -1,0 +1,69 @@
+StatefulWidget lifecycle
+createState()
+     ↓
+initState()
+     ↓
+didChangeDependencies()
+     ↓
+build()
+     ↓
+setState() → build() again
+     ↓
+didUpdateWidget()
+     ↓
+deactivate()
+     ↓
+dispose()
+1. createState()
+
+Creates the State object for the StatefulWidget.
+
+2. initState()
+
+Called once when the State object is inserted into the tree.
+
+Used for initialization, like:
+
+@override
+void initState() {
+  super.initState();
+  // initialize something
+}
+3. didChangeDependencies()
+
+Called when an inherited dependency used by the widget changes.
+
+Example: Theme, MediaQuery, etc.
+
+4. build()
+
+Builds/returns the UI.
+
+It can run many times, especially after setState().
+
+5. didUpdateWidget()
+
+Called when the parent rebuilds and provides a new Widget configuration of the same type.
+
+6. deactivate()
+
+Called when the State is temporarily removed from the tree.
+
+7. dispose()
+
+Called when the State is permanently removed.
+
+Used for cleanup:
+
+controller.dispose();
+Your answer correction
+
+You said:
+
+init → build → didChangeDependencies → dispose → detach
+
+You're remembering the right concepts. Just remember:
+
+deactivate(), not detach().
+
+And don't worry about memorizing every lifecycle method perfectly yet. For interviews, initState → build → didChangeDependencies → didUpdateWidget → deactivate → dispose is the useful sequence.

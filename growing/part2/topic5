@@ -1,0 +1,49 @@
+Element Tree ⭐
+
+This is an important Happiest Minds interview topic, and you actually asked about it before.
+
+You previously wondered:
+
+“Everything we see in Flutter is a widget, so what is an Element?”
+
+Simple explanation
+
+A Widget is a configuration/description of what the UI should be.
+
+An Element is the persistent connection between a Widget and its position in the Widget Tree.
+
+Think:
+
+Widget
+   ↓
+Element
+   ↓
+RenderObject
+
+But don't treat them as the same thing.
+
+Why do we need Elements?
+
+Widgets are immutable and can be recreated frequently.
+
+Flutter needs something that can persist between rebuilds and keep track of the widget's place in the tree.
+
+That's where the Element Tree comes in.
+
+For example:
+
+Widget Tree          Element Tree
+-----------          ------------
+Scaffold       →     Scaffold Element
+   ↓                     ↓
+ Text          →     Text Element
+
+When Flutter rebuilds, it can compare the new widgets with existing elements and decide whether an existing element can be reused.
+
+That's why you previously heard:
+
+“The Element Tree decides whether to reuse existing elements.”
+
+That's the concept.
+
+
