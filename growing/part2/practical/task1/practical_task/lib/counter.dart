@@ -36,14 +36,16 @@ setState() causes build() to run again, but the same State object remains, so co
  */
   int count = 0;
   String textDisplay = '';
-  TextEditingController input = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  bool obsecureEye = false;
   void increment() {
     count++;
   }
 
   @override
   void dispose() {
-    input.dispose();
+    nameController.dispose();
     super.dispose();
   }
 
@@ -65,16 +67,27 @@ setState() causes build() to run again, but the same State object remains, so co
           ),
           SizedBox(height: 50),
           TextField(
-            controller: input,
+            controller: nameController,
             decoration: InputDecoration(labelText: 'Enter your name'),
           ),
           SizedBox(height: 50),
+          TextField(
+            controller: passwordController,
+            decoration: InputDecoration(labelText: 'enter your password'),
+          ),
+          // IconButton(
+          //   onPressed: () {
+          //     setState(() {
+          //       obsecureEye = !obsecureEye;
+          //     });
+          //   },
+          // ),
           Text('You enterd input $textDisplay'),
           SizedBox(height: 50),
           ElevatedButton(
             onPressed: () {
               setState(() {
-                textDisplay = input.text;
+                textDisplay = nameController.text;
               });
             },
             child: Text('Submit'),
