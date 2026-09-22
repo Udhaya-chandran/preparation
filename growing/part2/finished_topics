@@ -1,0 +1,201 @@
+1. Your three-tree understanding — keep it ✅
+
+Your mental model is good:
+
+Widget Tree
+   ↓
+Element Tree
+   ↓
+RenderObject Tree
+
+But remember: not every Widget has a RenderObject. The RenderObject tree is effectively a subset of the Element tree.
+
+2. setState() — one wording correction ⚠️
+
+You've been saying:
+
+setState() changes the state.
+
+Better:
+
+We change the state, and setState() tells Flutter that the state changed and that the build() method needs to run again.
+
+Official Flutter docs make this distinction clearly.
+
+So:
+
+setState(() {
+  count++;
+});
+
+Think:
+
+count++     → state changes
+setState()  → notify Flutter
+build()     → runs again
+3. Rebuilds — your understanding is mostly right ✅
+
+One correction to keep in your notes:
+
+Don't say:
+
+"setState() rebuilds only that widget."
+
+Say:
+
+"setState() marks the associated element as dirty and schedules it for rebuilding. Flutter then walks the affected part of the tree and can skip clean parts."
+
+Flutter's Element tree maintains the persistent structure and dirty elements are processed during the build phase.
+
+This is actually a better interview explanation.
+
+4. BuildContext — correct ✅
+
+Your answer:
+
+“BuildContext defines the location of a widget in the widget tree.”
+
+That's correct.
+
+Add:
+
+It also provides access to things available at that location, such as Theme, MediaQuery, and Navigator.
+
+Officially, BuildContext is a handle to the location of a widget in the tree.
+
+5. Keys — slightly improve your answer ⚠️
+
+You said:
+
+“Keys uniquely identify a value or widget.”
+
+Change it to:
+
+“Keys help Flutter identify and match widgets when the widget tree changes, especially among sibling widgets, so associated state can be preserved correctly.”
+
+Flutter normally matches widgets using type and position; keys affect that matching.
+
+6. Lifecycle — add createState() and didUpdateWidget()
+
+You remembered:
+
+initState()
+build()
+didChangeDependencies()
+dispose()
+deactivate()
+
+Good.
+
+For your interview notes, keep the fuller set:
+
+createState()
+     ↓
+initState()
+     ↓
+didChangeDependencies()
+     ↓
+build()
+     ↓
+didUpdateWidget()   ← when parent gives new configuration
+     ↓
+deactivate()
+     ↓
+dispose()
+
+createState() happens when the StatefulWidget gets its State object, and dispose() is where resources are cleaned up.
+
+7. RenderObject — your understanding is correct ✅
+
+Your original answer:
+
+“RenderObject only do the actual rebuild layout painting etc.”
+
+Change only “rebuild”:
+
+“RenderObject handles the actual layout, painting, and hit testing.”
+
+That's directly aligned with Flutter's documentation.
+
+8. Practical coding — one important lesson from your mistakes
+
+Your counter + TextField + password practice actually exposed some important fundamentals:
+
+State variable
+      ↓
+Where should it live?
+      ↓
+How does UI access it?
+      ↓
+What changes it?
+      ↓
+Does setState() need to be called?
+      ↓
+Does the object need dispose()?
+
+You learned:
+
+state should survive rebuilds
+TextEditingController
+controller.text
+setState()
+boolean toggling with !
+dispose()
+TextField.obscureText
+basic UI layout
+clean code/UI structure
+
+That's valuable practical learning, not just theory.
+
+One thing I would add to Part 2
+
+Since you're preparing specifically for a Flutter developer interview, I don't want to leave Part 2 without these small but important concepts:
+
+Part 2 final additions
+
+13. Flutter declarative UI
+
+Understand:
+
+“Instead of directly modifying existing UI objects, we change state and describe what the UI should look like. Flutter creates new widget configurations and updates the underlying representation.”
+
+Flutter officially describes Widgets as immutable blueprints/configurations in its declarative model.
+
+14. Flutter layout basics
+
+You should know:
+
+Constraints go down
+Sizes go up
+Parents set positions
+
+This is a very common Flutter interview concept.
+
+15. const and rebuild performance
+
+Understand why we use:
+
+const Text('Hello')
+
+and why const widgets can help Flutter avoid unnecessary work.
+
+Flutter's official material specifically discusses const constructors in the context of efficient rebuilding.
+
+So Part 2 status
+Part 2 — Flutter Fundamentals
+
+1.  Flutter                         ✅
+2.  Widget                          ✅
+3.  Stateless vs Stateful           ✅
+4.  Widget Tree                     ✅
+5.  Element Tree                    ✅
+6.  RenderObject Tree               ✅
+7.  BuildContext                    ✅
+8.  setState()                      ✅
+9.  Lifecycle                       ✅
+10. Keys                            ✅
+11. Rebuilds                        ✅
+12. Practical Flutter tasks         ✅
+13. Declarative UI                  ➡️ ADD
+14. Layout / Constraints             ➡️ ADD
+15. const & rebuild performance     ➡️ ADD
