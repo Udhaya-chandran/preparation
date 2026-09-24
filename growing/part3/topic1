@@ -1,0 +1,47 @@
+Topic 1: Project Introduction
+
+We'll start with IDTR, because it's your easiest project to explain as a complete production app.
+
+Don't memorize the long explanation you pasted.
+
+Your 60–90 second structure
+
+Remember only these 6 points:
+
+1. What
+
+IDTR is a student app for the Institute of Driving Training and Research, Kerala.
+
+2. Purpose
+
+Students can discover courses, register/login, apply for courses, make payments, manage their courses and verify certificates.
+
+3. Your role
+
+I worked on the Flutter application and handled the major student-side features.
+
+4. Tech
+
+Flutter, Provider, HTTP, SharedPreferences, WebView and Syncfusion PDF.
+
+5. Important features
+
+OTP authentication, course application, photo upload/cropping, payment WebView, cancellation/reslot and QR certificate verification.
+
+6. Real problem
+
+One important production issue was the Play Store photo-permission rejection, which I fixed by moving to the system photo picker and removing broad media permissions.
+
+Interview answer
+
+A clean version would be:
+
+“One of the projects I worked on was IDTR Kerala, a student application for the Institute of Driving Training and Research. The application allows students to browse driving courses, register and log in using phone OTP, apply for courses, upload their photo, make payments, manage their applications, and verify certificates using QR scanning.
+
+I developed the Flutter application and worked on features like OTP authentication, course application, payment WebView, cancellation and reslot, tender PDFs and certificate verification. We used Provider for state management, HTTP for API integration, SharedPreferences for session data, and other packages for PDF, image cropping and QR scanning.
+
+One production issue I handled was a Play Store rejection related to broad photo and media permissions. I changed the photo selection to use the system picker, kept the required passport-style cropping, and removed the unnecessary media permissions.”
+
+That's enough for the first answer.
+
+If the interviewer wants more, then you go into architecture.

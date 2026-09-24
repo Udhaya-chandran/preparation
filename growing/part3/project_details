@@ -1,0 +1,426 @@
+1. IDTR Kerala — Motor Vehicle Training
+Stack: Flutter, Provider, http, SharedPreferences, WebView payments, Syncfusion PDF, Mobile Scanner. Version 1.0.3+3. Package com.idtrkerala.motorvehicle_app. API https://idtrkerala.com/api. No Firebase.
+
+2-minute walkthrough
+IDTR Kerala trains drivers. Students had to visit the office to see courses, apply, upload a photo, pay, reschedule, or verify a certificate.
+
+I built the student app. A person browses courses, registers and logs in with phone OTP, fills a long application with a cropped photo, pays inside a WebView, and later cancels or reslots a seat. Tenders open as PDFs. A QR scan verifies a certificate.
+
+Architecture is Provider plus screens. main.dart registers about 29 ChangeNotifiers. Screens live in lib/screen, API and state in lib/provider, models in lib/model. Navigation is Navigator.push, not named routes. The token sits in a UserSession singleton and in SharedPreferences under token.
+
+The hard bug: Play Store rejected the app because of the photo picker and broad media permissions. I switched the application photo to the system photo picker, kept a 3:4 passport crop with image_cropper, and removed READ_MEDIA_IMAGES and READ_MEDIA_VIDEO so the release could go up.
+
+Project explanation
+“IDTR is the student app for the Institute of Driving Training and Research, Kerala. It covers course discovery, OTP registration and login, course application, online payment, my courses, cancellation with bank details, reslot, tender PDFs, and QR certificate verification.”
+
+Architecture
+lib/
+  main.dart              MultiProvider + MaterialApp
+  accestoken.dart        UserSession singleton
+  screen/                UI
+  provider/              ChangeNotifier + HTTP
+  model/                 response models
+  service/               tenders
+This is a feature-screen architecture, not Clean Architecture. Each provider owns its API call and notifyListeners().
+
+Your role
+You owned the Flutter app: OTP login and registration, course apply form, payment WebView, cancel and reslot, certificate QR, tender PDF, and the Play Store photo-picker fix. Remote: github.com/Udhaya-chandran/idtr.
+
+Flutter architecture
+Screen calls provider, provider calls https://idtrkerala.com/api/..., provider updates fields, UI rebuilds with Consumer or context.watch.
+
+State management
+Provider. Examples: LoginProvider, AuthProvider, CourseProvider, CourseApplicationProvider, PaymentProvider, CancelApplicationProvider, ReslotPaymentProvider. Token is not a notifier. It is UserSession().token.
+
+API integration
+package:http. Two headers: a static API access-token, and Authorization: Bearer <token> after login. Important calls: /api/user/login/otp, /api/user/login/otp/validation, /api/user/registration, /api/courses, multipart /api/user/courseapplication, /api/user/courseapplication/paymentRequest, /api/user/cancelapplication/process, /api/search/certificate. Tenders come from https://app.idtrkerala.com/api/tenders.
+
+Authentication
+Phone number, 10 digits, auto-sends OTP. SMS autofill uses smart_auth. Verify OTP, save token, then guarded screens read SharedPreferences before My Courses, Apply, and Profile. Logout hits /api/user/logout and clears the token. Email/password still exists in LoginService, but the screen uses OTP.
+
+Firebase / notifications
+None.
+
+Local storage
+SharedPreferences key token. PDFs saved with path_provider, then opened with open_filex.
+
+Error handling
+Providers set errorMessage and call notifyListeners(). UI shows a SnackBar or red text. ErrorFormatter flattens Laravel-style validation maps from registration and login.
+
+Navigation
+Imperative Navigator.push and pushAndRemoveUntil. Home is CourseScreenUI. Android has myapp://success and myapp://failure for payment return. Dart does not listen for those links yet. If they ask, say payment success today depends on the user coming back from the WebView, and the next fix is intercepting those schemes inside WebViewScreen.
+
+Reusable components
+There is no shared widget folder. Local pieces: CourseCard, CategoryChip, drawer tiles, pincode lookup.
+
+Real problem you solved
+Play Console rejected the build over photo access. The course form needs a passport-style photo. You moved to the native picker plus ImageCropper at 3:4, and dropped broad gallery permissions.
+
+A second bug you should be ready to explain, because it is still in the code: CourseApplicationProvider stores final String? _userToken = UserSession().token when the provider is created at app start, before login. After OTP, that field is still null, so submit says “User token not found.” Other providers read UserSession().token inside the method. The fix is to do the same here.
+
+Performance
+cached_network_image for course images. flutter_screenutil at 375×812. The apply form is one large screen, so you keep lookups (gender, qualification, pincode, guardian) in separate providers so the form does not refetch them on every keystroke.
+
+Debugging
+debugPrint of request and response on course apply. debugShowCheckedModeBanner: false.
+
+Security — say this honestly
+Token is in SharedPreferences. The static API gate token is in the app binary, so it is not a secret. You would move the user token to flutter_secure_storage and keep the gate token on the server. One certificate download path still sends fixed credentials. Say you would remove that and use the logged-in bearer token.
+
+Testing
+test/widget_test.dart pumps the home screen and expects “Find your course...”, Home, and Tender.
+
+Deployment
+Signed release with key.properties. targetSdk 35. Version 1.0.3+3. Launcher icon from the Play asset. Uploaded after the photo-picker rejection.
+
+Questions they will ask
+Why Provider and not GetX or Riverpod?
+The app is a set of independent API screens. Each screen has one notifier. Provider was enough, and every screen can watch only what it needs.
+
+Why OTP instead of password?
+Students use a phone number. OTP is the live login. Password update still exists for profile.
+
+How does payment work?
+Apply returns an order. PaymentProvider posts paymentRequest and gets payment_url. WebViewScreen loads it. Reslot uses the same WebView with ReslotPaymentProvider.
+
+How does QR verification work?
+MobileScanner reads certificateNumber/last4. The app posts /api/search/certificate.
+
+How do you cancel a course?
+Only if cancelEnable is true. The user enters bank details. CancelApplicationProvider posts /api/user/cancelapplication/process.
+
+What broke on Play Store?
+Photo permissions. Native picker, crop, remove broad media permissions.
+
+What is still weak?
+Token captured too early in CourseApplicationProvider, and payment return deep links are declared on Android but not handled in Dart.
+
+Mock (about 90 seconds)
+Interviewer: Walk me through applying for a course.
+You: User opens a course, picks centre and slot. If there is no token, we send them to OTP login. The apply screen loads dropdowns from qualification, gender, guardian, year, and pincode APIs. They pick a photo, we crop it 3:4, and we POST multipart to /api/user/courseapplication. On success we open payment, request a payment URL, and load it in a WebView. After payment they land back on My Courses.
+
+
+
+2. TriceTrack — Route and Sales Management
+Path: new_sales_app. Title in code: Trice Track App.
+Stack: Flutter, Riverpod 3, go_router, Dio, SharedPreferences, Firebase Messaging, flutter_background_service, flutter_map (OpenStreetMap). API https://saletrack.triceapp.in/api/v1/.
+
+2-minute walkthrough
+Sales managers could not see where field staff were, which shops they visited, or which routes they owned. Paper attendance and WhatsApp locations were the process.
+
+I built TriceTrack for two roles. Admin (role_id == 2) gets a dashboard, routes, staff, attendance, leave, shop edit, and a live map. The salesperson punches in and out, sees assigned areas and shops, adds a shop with GPS and a photo, writes visit notes, and applies leave.
+
+Architecture is feature-first. lib/features/auth, admin, and salesman each have domain/repositories and presentation/providers plus screens. lib/core holds Dio, go_router, session, notifications, and location. Riverpod Notifier and AsyncNotifier hold state. Repositories talk to Dio.
+
+The hard bug was background GPS. A background isolate cannot use Riverpod or the main Dio client. The service builds its own Dio, reloads SharedPreferences so it sees the token written on the UI isolate, and posts latitude and longitude to save_current_location every 5 minutes while a foreground notification stays visible. Admin live tracking does not use a socket. It polls get_current_location every 30 seconds and animates the marker between points. Google Maps was removed because of key and billing cost. Maps are flutter_map with OpenStreetMap tiles.
+
+Be ready for this: LocationTrackingService.start() and stop() are commented out on the punch-in and punch-out buttons right now. The service code is real. If they open that screen, say punch-in used to start it, it is temporarily disconnected, and admin live map still polls the last saved point.
+
+Project explanation
+“TriceTrack is a field sales tracker. Admin assigns routes and watches live location, attendance, and shop visits. Sales staff punch in, work their shops, and log visits with GPS.”
+
+Architecture
+lib/core/          Dio, router, session, FCM, location, theme
+lib/features/auth/
+lib/features/admin/     domain + presentation
+lib/features/salesman/
+Repository pattern. No separate data/ folder. Screens are ConsumerWidgets.
+
+Your role
+You built both roles: phone login, admin dashboard and route or staff CRUD, salesman punch and shops, Firebase force-logout, Play signing, and the map switch from Google Maps to OpenStreetMap. About 29 commits on this repo.
+
+State management
+Riverpod 3.
+
+Provider	Job
+dioProvider, apiClientProvider
+HTTP
+adminProvider
+AdminNotifier + AdminState
+shopsByAreaProvider
+AsyncNotifier shop list
+profileProvider
+AsyncValue<UserProfile>
+routerProvider
+GoRouter
+test/admin_provider_test.dart overrides adminRepositoryProvider with mocktail and checks that a successful shop delete removes the shop from state.
+
+API integration
+Base URL is fixed: https://saletrack.triceapp.in/api/v1/. Dio timeouts 30 seconds. Interceptor adds Authorization: Bearer and, on 401, shows a security dialog, then logs out after 3 seconds. Login, profile, routes, shops, sign-in / sign-out, save_current_location, get_current_location, leave, staff, notifications.
+
+Authentication
+Login sends the phone number in the email field, plus password and FCM device_token. Session stores token, role_id, user_type, permissions. Admin goes to /admin-home. Everyone else goes to /salesman-home. Logout clears prefs and deletes the FCM token. A second login sends FCM type: FORCE_LOGOUT, including in the background handler, which clears the session on the old phone.
+
+Firebase / notifications
+Firebase.initializeApp in main. Foreground messages become local notifications on high_importance_channel. Force-logout is handled in foreground and in the background isolate. Device token is retried up to 3 times because FCM often returns null on first launch.
+
+Local storage
+SharedPreferences: access_token, user_type, role_id, permissions, bg_punched_in, last_map_request_time. getToken() calls prefs.reload() so the background isolate does not read a stale cache.
+
+Error handling
+Repositories turn DioException into the server message or validation errors, then rethrow. Screens show a SnackBar. Location posts fail quietly with debugPrint so a bad GPS fix does not block punch-out.
+
+Navigation
+go_router route table in app_router.dart. Admin home, attendance, shops, and daily logs sit in a ShellRoute with a bottom bar. There is no redirect guard. Role is chosen at login, splash, and cold start from SessionManager.getUserType(). Permissions such as sort_shop and add_business are checked on the button.
+
+Reusable components
+MapSelectionPage (flutter_map + Nominatim search), ResponsiveLayout, AppTheme / AppColors. Most screens are large and local. Salesman home is about 1,500 lines.
+
+Real problem you solved
+Background location on Android 14 needs a foreground service of type location, a persistent notification, and a separate isolate. That isolate cannot see Riverpod. You create Dio inside _onStart, read the token after reload(), stop the service if bg_punched_in is false, and post every 5 minutes.
+
+Second solved problem: Google Maps was removed (commit message: switched to a free open-source map). Live tracking, daily travel polylines, and shop pin pick all use OSM tiles. Daily travel is rate-limited to one request per 120 seconds via SharedPreferences so the map screen cannot hammer daily_travel_summary.
+
+Performance
+Live map polls every 30 seconds and animates the marker for about 1.8 seconds instead of teleporting. Background upload is 5 minutes, not every second. Shop reorder is one sort_shop call, not a full refetch per drag.
+
+Debugging
+Dio interceptor logs URL, headers, and body in debug. Location and FCM use debugPrint.
+
+Security
+Token in SharedPreferences. allowBackup=false. Release is signed with upload-keystore.jks. 401 and FORCE_LOGOUT cover a second device. applicationId is still com.example.new_sales_app. If they ask, say you would change that before a public listing and stop printing the Authorization header.
+
+Testing
+Unit: admin_provider_test.dart with mocktail, delete-shop success and failure. Integration: integration_test/app_test.dart launches the app and waits.
+
+Deployment
+google-services plugin, release signing from key.properties, launcher icon from the Track icon. Play-oriented keystore commit is in history.
+
+Questions they will ask
+Why Riverpod here and Provider on IDTR?
+TriceTrack has shared admin state, async shop lists, and a repository you can override in tests. Riverpod Notifier plus AsyncValue fits that. IDTR screens are independent.
+
+Why no GoRouter redirect?
+Role is decided once at login and stored. Cold start reads that and sets initialLocation. I would add redirect if we add deep links from notifications.
+
+How does live tracking work without WebSockets?
+Admin screen polls get_current_location every 30 seconds and interpolates the marker.
+
+Why did the background isolate miss the token?
+SharedPreferences is cached per isolate. reload() pulls the value the UI isolate just wrote.
+
+Why OpenStreetMap?
+Google Maps needed a paid key and billing. OSM tiles plus Nominatim reverse-geocode were enough for shop pins and live tracks.
+
+What does punch-in actually do?
+It takes GPS, calls sign-in, and marks the work session. Tracking start is in LocationTrackingService.start(), which sets bg_punched_in and starts the foreground service. Those two lines are commented on the button at the moment.
+
+How do you test a notifier?
+Override the repository provider with mocktail. Call deleteShopApi. Assert the shop is gone on success and unchanged on throw.
+
+Mock
+Interviewer: The admin says the marker never moves after punch-in. Where do you look?
+You: Three places. Did punch-in call LocationTrackingService.start()? Right now those calls are commented, so nothing posts save_current_location. If the service is running, the isolate must prefs.reload() or the Bearer token is empty and the POST fails silently. If posts succeed, the admin screen only refreshes every 30 seconds, so I check get_current_location in the Dio log before blaming the map.
+
+
+
+3. Wholesale system — Trice Sales System
+Path: SALES/project/whole_sale_system. Title: Trice Sales System.
+Stack: Flutter, GetX, Dio, SharedPreferences, Firebase Messaging, WorkManager, Geolocator, Google Maps, Syncfusion PDF. This is the order-and-delivery app. TriceTrack is the route tracker. Do not mix them.
+
+2-minute walkthrough
+Wholesale salespeople visit shops, take orders, deliver from a van, print bills, and collect payment. Admins need attendance, leave, travel, and daily business numbers. One app serves many client companies, each with its own API server.
+
+I built the GetX app. Each feature is a page, a controller, and a binding. Salesman flow is attendance, then shops, orders, delivery, and payment. Admin flow is dashboard, staff activity, attendance, leave, and travel.
+
+The hard part is tenancy. Login does not know the API host yet. The app first calls client_check on a fixed management URL, https://saleappmgnt.triceapp.in/api/v1/. That returns this company’s api_url. We save it. Every later Dio call sets baseUrl from that saved URL and attaches the bearer token.
+
+The hard bug was session kick. If the same user logs in on a second phone, the API returns 401. The interceptor opened a “Session Ended” dialog, but the failed screen’s loading code called Get.back() and closed that dialog immediately. I added a single-flight flag so only one 401 is handled, waited 500 milliseconds so the loading pop finishes, then showed a non-dismissible dialog, logged out, and Get.offAllNamed to login.
+
+Project explanation
+“Trice Sales System is a wholesale field app. Sales staff punch in, take shop orders, deliver, print a bill, and record payment. Admins watch attendance and daily sales. One build talks to many company servers.”
+
+Architecture
+lib/core/     config, Dio, session, location, FCM, attendance monitor, widgets
+lib/features/salesman/    ~37 features, each page + controller + binding
+lib/features/admin/
+lib/routes/   app_routes.dart, app_pages.dart
+GetX feature modules. Controllers extend GetxController. Bindings use Get.lazyPut. UI uses GetView and Obx. There is no GetBuilder in this project.
+
+Your role
+You built the salesman and admin features, dynamic company URL, attendance-gated GPS, delivery bills, and the 401 auto-logout. Face recognition was implemented and then turned off. Say that in one sentence if they see the commented camera code: “We prototyped on-device face match for punch-in and held it. The live screen says face recognition is disabled. Biometric helper exists and is not called.”
+
+State management
+GetX .obs and Obx. Route bindings inject the controller when the page opens. Cross-screen calls use Get.find, for example MainLayoutController and OrderController.
+
+API integration
+ApiClient starts with an empty base URL. The interceptor sets options.baseUrl from SessionManager.getApiUrl() and adds the bearer token. Timeouts are 20 seconds. ApiService._makeRequest treats status 1 or '1' as success. client_check uses a separate Dio pointed at the management host and treats HTTP 404 as a valid “client not found” response, not a crash.
+
+Authentication
+Startup: if not logged in, login. If role is admin, admin home. If a work session is active, main layout and restart tracking. Otherwise attendance. Login saves token, role, and permission strings. Work session is separate from login. Punch-in sets work_session_active. Punch-out stops GPS but can leave them logged in. Full logout clears prefs and stops tracking.
+
+Firebase / notifications
+Background handler plus foreground onMessage into flutter_local_notifications on high_importance_channel. FCM token is retried and sent at login. Proximity to a shop, about 50 metres, raises a local notification. Notification tap navigation is commented out. Firestore and Analytics are in pubspec and unused. Say that if they read pubspec.yaml.
+
+Local storage
+SharedPreferences only. No SQLite. Keys include token, role, permissions, dynamic_api_url, work_session_active, pinned deliveries, FCM token, and face flags. Login also stores email and password for remember-me. If they ask, say you would delete password storage and use secure storage for the token. Do not defend plaintext passwords.
+
+Error handling
+FriendlyException maps timeouts, no internet, 401, 403, 404, and HTML error pages. UI uses ErrorUtils with ScaffoldMessenger, not Get.snackbar. GetX snackbars were crashing with overlay and LateInitializationError when a dialog was on screen.
+
+Navigation
+Named GetX routes. No route middleware. Startup in main.dart picks the first screen. Permissions such as add_shop, add_order, add_delivery, gst_enable hide buttons. Main layout uses IndexedStack so the five tabs keep their state. Double back exits.
+
+Reusable components
+CustomButton, CustomTextField, ProductSearchSheet with a 450 ms debounce, MapSelectionPage for shop GPS on Google Maps.
+
+Real problem you solved
+401 dialog versus loading Get.back(), described above. File: api_client.dart, flag _isHandling401.
+
+Related tracking design you should explain cleanly: punch-in starts a Geolocator stream and a one-minute timer that posts user_activity. If the app is killed, WorkManager runs a one-off task about every minute, sends the point, and reschedules. Punch-out cancels the stream and calls cancelAll() on WorkManager. A RequirementMonitorService checks connectivity and GPS, and it will not restart tracking unless work_session_active is still true. That stops a killed app from tracking someone who already punched out.
+
+Performance
+IndexedStack for tabs. Debounced product search. _isSendingLocation stops overlapping GPS posts.
+
+Debugging
+debugPrint prefixes for login, client check, and location. API logs in ApiService.
+
+Security
+Bearer token and, today, password in SharedPreferences. allowBackup=false. usesCleartextTraffic=true. Maps key is in the manifest. Admin tracking is skipped for a hardcoded email in one place and by role_name everywhere else. Say you would align those and move secrets out of prefs.
+
+Testing
+Only the default counter widget_test.dart. It does not match this app. Say you would test ApiService status parsing and the 401 single-flight flag first.
+
+Deployment
+applicationId is still com.example.whole_sale_system. Release signing via key.properties. Firebase google-services. No product flavors. Version 1.0.0+1.
+
+Questions they will ask
+How can one APK talk to many companies?
+client_check on the management server returns api_url. Dio sets that as baseUrl on every request.
+
+Why is punch-in not the same as login?
+Login is identity. Punch-in is the work shift. GPS runs only during the shift.
+
+How does tracking survive process death?
+WorkManager one-off, rescheduled every minute, sends user_activity.
+
+Why ScaffoldMessenger instead of Get.snackbar?
+GetX snackbars threw when the overlay was not ready during dialogs.
+
+What does a delivery bill do?
+print_deilivered_product_bill returns a PDF URL. Syncfusion views it. printing shares or prints it. WhatsApp share uses the same file.
+
+Is face recognition live?
+No. Camera and ML code are commented. The screen says it is disabled.
+
+What happens if two phones log in?
+The old phone gets 401, one dialog, then full logout to the login route.
+
+Mock
+Interviewer: A salesman says he got logged out in the middle of an order.
+You: I check if the server returned 401. That means the account was used on another device. The interceptor is single-flight, waits half a second so the order screen’s loading pop does not dismiss the dialog, then clears the session and routes to login. If the status was 200 and they still landed on login, I look at work_session_active versus full SessionManager.logout. Punch-out does not clear the token. Only logout and 401 do.
+
+
+4. Drug Abuse Monitoring (DAM)
+Stack: Flutter, setState, plain Dart controllers, Dio, SharedPreferences, Firebase Messaging. API https://dam.triceapp.in/api/v1. Firebase project drug-abuse-monitoring. Package id is still com.example.dam.
+
+2-minute walkthrough
+Schools report drug-abuse complaints. District admins need to see every local body. Panchayat admins need to assign a status and write what action they took. Counsellors have to be listed and, at panchayat level, created.
+
+I built an admin app, not a public survey app. Login is email and password. district_admin opens a read-only shell with a local-body filter. Any other role, the panchayat admin, opens a shell where they can take action on a complaint and add a counsellor.
+
+There is no GetX or Provider. Each page is a StatefulWidget. Controllers are normal classes that call ApiService. Tabs use IndexedStack, so Home and Counsellors stay alive.
+
+The awkward bug was role routing after a process kill. Session and role are in SharedPreferences. On cold start, main reads is_logged_in and role_name, puts the bearer token back on Dio, and chooses DistrictMainNavigationPage or MainNavigationPage. If that role string is wrong, a district user sees the panchayat “Take Action” button. The fix is one function used by both cold start and the login success path, comparing role_name == 'district_admin'.
+
+Push tap routing is not finished. The notification is shown. _handleNotificationTap is empty. Say that before they find it.
+
+Project explanation
+“DAM is an internal app for drug-abuse complaints from schools. District admins monitor. Panchayat admins update status and manage counsellors.”
+
+Architecture
+lib/pages/           login, dashboards, details, counsellors, profile
+lib/pages/district/  district shell and read-only details
+lib/controller/      login, complaint, counselors, profile
+lib/services/        api, session, notifications, error_handler
+lib/models/
+Your role
+You did district versus panchayat login, dashboards, complaint status update, counsellors, and the login error handler. The repo also has pull requests from another developer. If they ask, name what you personally merged and do not claim the first commit if you joined later. Your commits include district login and the login API error handler.
+
+State management
+setState on each page. Controllers are created inside the page, so there is no global store. That is acceptable because each screen loads its own list. It becomes painful if two screens must share a live complaint. You would introduce a small shared controller only if that requirement appears.
+
+API integration
+Dio singleton, 30-second timeouts, header Authorization: {tokenType} {token}. Success is status == '1'. Endpoints: /login, /complaints, /complaint_details, /complaint-status-list, /update_complaint_status, /local_body, /councillors, /create_councillors, /profile, /profile_update.
+
+Authentication
+Email and password as form data, plus fcm_token. Save token, user JSON, and authorisation JSON. Logout clears those keys and the Dio header, then pushAndRemoveUntil login. fcm_token is kept on logout so the next login can reuse it. There is no refresh token. A 401 is a snackbar, not a forced logout. Activity-based auto-logout is written and fully commented out.
+
+Firebase / notifications
+Initialized in main, background handler registered, local channel high_importance_channel. Token retry on startup and again on login. Analytics is a dependency and is not called. Tap handler does not open a complaint.
+
+Local storage
+access_token, token_type, user_data, authorisation_data, is_logged_in, fcm_token.
+
+Error handling
+ErrorHandler maps Dio timeouts, no internet, validation maps, and status codes to snackbars. Login uses its own snackbar. List pages sometimes show e.toString(). You can say the login path was the one you tightened so a wrong password shows the server message instead of a raw Dio string.
+
+Navigation
+No router package. MaterialApp(home:) from session. Tabs are an IndexedStack. Details use MaterialPageRoute. After a status update, the details page pops {updated: true} and the dashboard refreshes.
+
+Reusable components
+Almost none. Filter chips and action cards are private methods on the page. ActivityTracker is commented out. An image viewer on the dashboard is unused.
+
+Real problem you solved
+District and panchayat were two different shells, and a static district UI was wired first. The live path reads authorisation.role_name. District can filter by local body and only view actions and assigned counsellors. Panchayat loads /complaint-status-list, posts /update_complaint_status with complaint_id, status, and action_notes, and can open CreateCounselorPage.
+
+Performance
+IndexedStack keeps both tabs. Lists are the full API payload inside ListView.builder. Startup waits about 2 seconds so FCM can return a token. That delay is a tradeoff, not a feature. You can say you would move token fetch off the critical path.
+
+Debugging
+Emoji debugPrint on login and API. Login masks the password. Other request logs are verbose. For a complaint app, you would strip body logs in release.
+
+Security
+Say this directly. Complaints contain school and student-related information. The app uses HTTPS and a bearer token. The token is plain SharedPreferences. Release signing in Gradle is still the debug keystore, and the application id is com.example.dam. You would not ship that. Next steps: flutter_secure_storage, a real upload keystore, a real application id, and no request-body logs.
+
+Testing
+widget_test.dart is still the counter template. It does not construct MyApp correctly. Do not claim test coverage here.
+
+Deployment
+Not store-ready. Version 1.0.0+1. Label dam. Firebase google-services is connected.
+
+Questions they will ask
+Why no Provider?
+Two shells and a handful of lists. setState plus a controller kept the data flow on one page. I would add Riverpod if complaint state had to stay in sync across tabs.
+
+How do you stop a panchayat user opening district data?
+The API is role-scoped. The app also picks a different shell so district never sees the status form. That UI split is not a security boundary. The server must ignore a status update from a district token.
+
+What is in a complaint update?
+complaint_id, status, action_notes.
+
+Why doesn’t a notification open the complaint?
+The payload handler is empty. I would parse the complaint id and push the correct details page only after the role shell exists, using a navigator key.
+
+What happens on cold start?
+Read prefs, restore the Authorization header, choose the shell from role_name.
+
+Mock
+Interviewer: A panchayat officer updates a complaint and the list still shows the old status.
+You: Details pops with {updated: true}. The dashboard is supposed to refetch /complaints on that result. I check that the POST returned status == '1' and that the list page actually awaited the push result. District details never post an update, so if they are on the district shell, the status will not change from the phone.
+
+How to introduce yourself with these projects
+“I have shipped four Flutter apps. IDTR Kerala is on Play Store: OTP login, course application, WebView payments, and certificate QR for a driver-training institute. TriceTrack is a route and live-tracking app with Riverpod, a background location isolate, and OpenStreetMap. Trice Sales System is a multi-tenant wholesale order and delivery app on GetX, with attendance-gated GPS. DAM is a role-based complaint console for district and panchayat admins. I usually own the full client: API, session, navigation, and the release build.”
+
+If they compare your state-management choices
+App	Choice	Why you say you chose it
+IDTR
+Provider
+Many independent forms and lookups
+TriceTrack
+Riverpod 3
+Shared admin state and repository tests
+Wholesale
+GetX
+Large feature count, bindings, named routes, reactive controllers
+DAM
+setState
+Two shells, few screens, no shared store
+What they will attack — answer in one line
+Password saved in wholesale prefs. “That was for remember-me. I would remove it and use secure storage for the token.”
+com.example ids on Wholesale, TriceTrack, and DAM. “IDTR has the real id com.idtrkerala.motorvehicle_app. The internal apps still need a package rename before a public release.”
+Face recognition commented out. “Prototyped and held. Punch-in uses GPS, not face.”
+Tracking start commented on TriceTrack. “The service is implemented. The punch button call is temporarily disconnected, so live points stop until it is wired back.”
+DAM notification tap does nothing. “Display works. Navigation from the payload is the remaining work.”
+IDTR token null on apply. “The provider captured the token at startup. It should be read inside the submit method.”
+Tests are thin. “TriceTrack has a real notifier test with mocktail. The others still have template widget tests. I would test session routing and API error mapping next.”

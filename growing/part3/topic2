@@ -1,0 +1,61 @@
+Project Architecture
+
+This is where they may ask:
+
+“Can you explain the architecture of your IDTR project?”
+
+Your answer should be based on what you actually built—not pretend that it was Clean Architecture.
+
+Your project was essentially:
+
+UI / Screen
+     ↓
+Provider
+     ↓
+HTTP API
+     ↓
+Backend
+
+And data comes back:
+
+Backend
+   ↓
+HTTP response
+   ↓
+Provider
+   ↓
+notifyListeners()
+   ↓
+UI rebuild
+
+For example:
+
+CourseScreen
+     ↓
+CourseProvider
+     ↓
+GET /api/courses
+     ↓
+API response
+     ↓
+CourseProvider updates data
+     ↓
+notifyListeners()
+     ↓
+Consumer rebuilds UI
+
+This is actually a good interview explanation because it demonstrates that you understand data flow, rather than just saying "I used Provider."
+
+Flutter's current architecture guidance describes this general idea as separation of concerns and unidirectional data flow: user interaction goes toward the data/logic layer, and updated state flows back toward the UI.
+
+Important correction for your interview
+
+Don't say:
+
+"My architecture is Provider architecture."
+
+Better:
+
+"The application uses a screen-based feature structure with Provider for state management. Screens handle presentation, providers handle state and API interaction, and models represent API data."
+
+That's more accurate.
